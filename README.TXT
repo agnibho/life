@@ -1,13 +1,16 @@
 =============
-Agnibho's Game of Life 1.0.0
+Agnibho's Game of Life 1.1.0
 =============
 
 General Usage Notes
 -------------------
--Start the program
+-Start the program by running the __main__.py file. Eg: python __main__.py
+-You can specify dimensions by providing width and height as arguments. Eg: python __main__.py 20 20
 -Seed the board by clicking on cells
 -Click <Start> to begin emulation
 -Click <Next Step> for emulating the next step
+-Select the <Automatic> checkbox for automatically running the game
+-Click <Reset> to reset all the cells
 
 Program Notes
 -------------
