@@ -8,9 +8,14 @@ General Usage Notes
 -You can specify dimensions by providing width and height as arguments. Eg: python __main__.py 20 20
 -Seed the board by clicking on cells
 -Click <Start> to begin emulation
+-Open Life 1.06 files by clicking <Open> and selecting the file from your computer
 -Click <Next Step> for emulating the next step
 -Select the <Automatic> checkbox for automatically running the game
 -Click <Reset> to reset all the cells
+-Save the current pattern to your computer by clicking <Save> and choosing the target file to save.
+-You can specify the cell dimensions by supplying the number of cells in rows and columns respectively as arguments. Example: python life.zip 20 20
+-To directly open a file from the command line supply the filename as argument. Example: python life.zip <filename>
+-The program supports Life 1.06 file format only. To use other file formats you need to convert them to Life 1.06 first.
 
 Program Notes
 -------------
