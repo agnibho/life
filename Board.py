@@ -116,8 +116,12 @@ class Board(tk.Frame):
     else:
       return
     if((max(arr[0])-min(arr[0]))>self.WIDTH/2 or (max(arr[1])-min(arr[1]))>self.DEPTH/2):
-      width=(max(arr[0])-min(arr[0]))*2
-      depth=(max(arr[1])-min(arr[1]))*2
+      if((max(arr[0])-min(arr[0]))>self.WIDTH/2):
+	width=(max(arr[0])-min(arr[0]))*2
+	depth=self.DEPTH
+      if((max(arr[1])-min(arr[1]))>self.DEPTH/2):
+	depth=(max(arr[1])-min(arr[1]))*2
+	width=self.WIDTH
       self.recreate(width, depth)
     
     if(min(arr[0])<=0):
