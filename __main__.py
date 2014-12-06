@@ -26,10 +26,10 @@ if(width<10 or depth<10):
   depth=50
   print "Dimensions must be more than 10x10"
   sys.exit()
-elif(width>app.winfo_screenwidth()/10 or depth>app.winfo_screenheight()/10-10):
+elif(width>app.winfo_screenwidth()/10 or depth>(app.winfo_screenheight()-150)/10):
   width=50
   depth=50
-  print "Dimensions are too large to fit in the screen. Maximum allowed dimension "+str(app.winfo_screenwidth()/10)+"x"+str(app.winfo_screenheight()/10-10)
+  print "Dimensions are too large to fit in the screen. Maximum allowed dimension "+str(app.winfo_screenwidth()/10)+"x"+str((app.winfo_screenheight()-150)/10)
   sys.exit()
 
 app.render(width, depth)

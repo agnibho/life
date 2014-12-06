@@ -5,6 +5,7 @@ class Cell():
   __parent={}
   __state="dead"
   __buff="dead"
+  __original="dead"
   
   def __init__(self, item, parent):
     self.__obj=item
@@ -28,14 +29,16 @@ class Cell():
       self.__parent.itemconfig(self.__obj, fill="white")
 	 
     
-  def toggle(self, event):
+  def toggle(self, event=False):
     if(self.__state=="live"):
       self.__state="dead"
       self.__buff="dead"
+      self.__original="dead"
       self.__parent.itemconfig(self.__obj, fill="white")
     elif(self.__state=="dead"):
       self.__state="live"
       self.__buff="live"
+      self.__original="live"
       self.__parent.itemconfig(self.__obj, fill="green")
       
   def freeze(self):
@@ -43,3 +46,14 @@ class Cell():
   
   def unfreeze(self):
     self.__parent.tag_bind(self.__obj, '<ButtonPress-1>', self.toggle)
+    
+  def revert(self):
+    self.__buff=self.__original
+    self.commit()
+    self.unfreeze()
+    
+  def clear(self):
+    self.__buff="dead"
+    self.__original="dead"
+    self.commit()
+    self.unfreeze()

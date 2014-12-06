@@ -11,35 +11,53 @@ class Board(tk.Frame):
   DEPTH=50
   start_dim=[]
   Num=0
-  auto={}
+  Pop=-1
+  Max=0
+  mode="edit"
   timer={}
+  original={}
   
   def __init__(self, master=None):
     tk.Frame.__init__(self, master)
     self.grid()
-    self.auto=BooleanVar()
     self.stepnum=StringVar()
+    self.steppop=StringVar()
     
   def render(self, width, depth):
     self.WIDTH=width
     self.DEPTH=depth
     self.start_dim=[width, depth]
+    self.statusbar=tk.Frame(self)
+    self.steplbl=tk.Label(self.statusbar, textvariable=self.stepnum, padx=10)
+    self.poplbl=tk.Label(self.statusbar, textvariable=self.steppop, padx=10)
     self.contain=tk.Canvas(self, width=self.WIDTH*self.SIZE, height=self.DEPTH*self.SIZE)
-    self.contain.grid()
+    self.toolbar=tk.Frame(self)
+    self.startbtn=tk.Button(self.toolbar, text="Start", command=self.auto)
+    self.pausebtn=tk.Button(self.toolbar, text="Pause", state="disabled", command=self.pause)
+    self.stepbtn=tk.Button(self.toolbar, text="Next Step", command=self.step)
+    self.resetbtn=tk.Button(self.toolbar, text="Reset", command=self.reset)
+    self.revertbtn=tk.Button(self.toolbar, text="Revert", state="disabled", command=self.revert)
+    self.openbtn=tk.Button(self.toolbar, text="Open", command=self.openfile)
+    self.savebtn=tk.Button(self.toolbar, text="Save", command=self.savefile)
+    self.aboutbtn=tk.Button(self.toolbar, text="About", command=self.about)
+    self.statusbar.grid(row=0)
+    self.steplbl.grid(row=0, column=0)
+    self.poplbl.grid(row=0, column=1)
+    self.contain.grid(row=1)
+    self.toolbar.grid(row=2)
+    self.startbtn.grid(row=0, column=0)
+    self.pausebtn.grid(row=0, column=1)
+    self.stepbtn.grid(row=0, column=2)
+    self.resetbtn.grid(row=0, column=3)
+    self.openbtn.grid(row=1, column=0)
+    self.savebtn.grid(row=1, column=1)
+    self.revertbtn.grid(row=1, column=2)
+    self.aboutbtn.grid(row=1, column=3)
+    
     for i in range(0, self.WIDTH):
       self.cells.append([])
       for j in range (0, self.DEPTH):
 	self.cells[i].append(Cell.Cell(self.contain.create_rectangle(i*self.SIZE, j*self.SIZE, i*self.SIZE+self.SIZE, j*self.SIZE+self.SIZE, fill="white", outline="gray"), self.contain))
-    self.startbtn=tk.Button(self, text="Start", command=self.start)
-    self.autobtn=tk.Checkbutton(self, text="Automatic", command=self.run, variable=self.auto)
-    self.stepbtn=tk.Button(self, text="Next Step", command=self.step)
-    self.resetbtn=tk.Button(self, text="Reset", command=self.reset)
-    self.openbtn=tk.Button(self, text="Open", command=self.openfile)
-    self.savebtn=tk.Button(self, text="Save", command=self.savefile)
-    self.steplbl=tk.Label(self, textvariable=self.stepnum)
-    self.steplbl.grid(row=1)
-    self.startbtn.grid(row=1, sticky="W")
-    self.openbtn.grid(row=1, sticky="E")
     
   def recreate(self, width, depth):
     self.contain.destroy()
@@ -53,23 +71,75 @@ class Board(tk.Frame):
     else:
       self.SIZE=10
     self.contain=tk.Canvas(self, width=self.WIDTH*self.SIZE, height=self.DEPTH*self.SIZE)
-    self.contain.grid(row=0)
+    self.contain.grid(row=1)
 
     for i in range(0, self.WIDTH):
       self.cells.append([])
       for j in range (0, self.DEPTH):
 	self.cells[i].append(Cell.Cell(self.contain.create_rectangle(i*self.SIZE, j*self.SIZE, i*self.SIZE+self.SIZE, j*self.SIZE+self.SIZE, fill="white", outline="gray"), self.contain))
     
-  def start(self):
+  def run(self):
     for i in range(0, self.WIDTH):
       for j in range (0, self.DEPTH):
 	self.cells[i][j].freeze()
-    self.startbtn.grid_remove()
-    self.openbtn.grid_remove()
-    self.stepbtn.grid(row=1, sticky="W")
-    self.resetbtn.grid(row=1, sticky="E")
-    self.autobtn.grid(row=2, sticky="W")
-    self.savebtn.grid(row=2, sticky="E")
+    self.original=self.cells
+    self.mode="man"
+    self.revertbtn["state"]="normal"
+    
+  def step(self):
+    if(self.Pop==0):
+      tkMessageBox.showwarning("Game over", "All life forms have been terminated")
+      return
+    if(self.mode=="edit"):
+      self.run()
+    for i in range(0, self.WIDTH):
+      for j in range (0, self.DEPTH):
+	z=self.count(i, j)
+	if(self.cells[i][j].getState()=="live"):
+	  if(z<2 or z>3):
+	    self.cells[i][j].makeDead()
+	elif(self.cells[i][j].getState()=="dead"):
+	  if(z==3):
+	    self.cells[i][j].makeLive()
+    self.Pop=0
+    for i in range(0, self.WIDTH):
+      for j in range (0, self.DEPTH):
+	self.cells[i][j].commit()
+	if(self.cells[i][j].getState()=="live"):
+	  self.Pop+=1
+	  if(self.Pop>self.Max):
+	    self.Max=self.Pop
+    if(self.Pop>0):
+      self.Num+=1
+    else:
+      tkMessageBox.showwarning("Game over", "All life forms have been terminated\nMaximun polpulation reached: "+str(self.Max))
+      self.pause()
+      self.startbtn["state"]="disabled"
+      self.stepbtn["state"]="disabled"
+    if(self.WIDTH>30):
+      self.stepnum.set("Generation: "+str(self.Num))
+      self.steppop.set("Population: "+str(self.Pop))
+    else:
+      self.stepnum.set(str("Gen:"+str(self.Num)))
+      self.steppop.set("Pop:"+str(self.Pop))
+    if(self.mode=="auto"):
+      self.timer=self.after(1000, self.step)
+	
+  def auto(self):
+    self.startbtn["state"]="disabled"
+    self.stepbtn["state"]="disabled"
+    self.pausebtn["state"]="normal"
+    if(self.mode=="edit"):
+      self.run()
+    self.mode="auto"
+    self.timer=self.after(1000, self.step)
+      
+  def pause(self):
+    self.startbtn["state"]="normal"
+    self.stepbtn["state"]="normal"
+    self.pausebtn["state"]="disabled"
+    self.mode="man"
+    self.after_cancel(self.timer)
     
   def openfile(self):
     filename=tkFileDialog.askopenfilename(filetypes=[("Life 1.06", "*.life"), ("Life 1.6", "*.lif"), ("All", "*")])
@@ -141,8 +211,7 @@ class Board(tk.Frame):
       while(arr[1][i]>self.DEPTH):
 	arr[1][i]-=self.DEPTH
     for i in range(0, len(arr[0])):
-      self.cells[arr[0][i]][arr[1][i]].makeLive()
-      self.cells[arr[0][i]][arr[1][i]].commit()
+      self.cells[arr[0][i]][arr[1][i]].toggle()
       
   def writefile(self, filename):
     if(len(filename)>0):
@@ -154,55 +223,42 @@ class Board(tk.Frame):
 	    f.write(str(i)+" "+str(j)+"\r\n")
       f.close()
     
-  def reset(self):
-    self.Num=0
-    self.stepnum.set("")
-    if(self.WIDTH==self.start_dim[0] and self.DEPTH==self.start_dim[1]):
-      for i in range(0, self.WIDTH):
-	for j in range (0, self.DEPTH):
-	  self.cells[i][j].makeDead()
-	  self.cells[i][j].commit()
-	  self.cells[i][j].unfreeze()
-    else:
-      self.recreate(self.start_dim[0], self.start_dim[1])
-    self.stepbtn.grid_remove()
-    self.resetbtn.grid_remove()
-    self.autobtn.grid_remove()
-    self.savebtn.grid_remove()
-    self.startbtn.grid()
-    self.openbtn.grid()
-    if(self.auto.get()):
-      self.autobtn.invoke()
-    
-  def step(self):
-    self.Num+=1
-    if(self.WIDTH>30):
-      self.stepnum.set("Generation: "+str(self.Num))
-    else:
-      self.stepnum.set(str(self.Num))
+  def reset(self, full=True):
+    self.Pop=0
     for i in range(0, self.WIDTH):
       for j in range (0, self.DEPTH):
-	z=self.count(i, j)
 	if(self.cells[i][j].getState()=="live"):
-	  if(z<2 or z>3):
-	    self.cells[i][j].makeDead()
-	elif(self.cells[i][j].getState()=="dead"):
-	  if(z==3):
-	    self.cells[i][j].makeLive()
+	  self.Pop+=1
+    if(self.Pop>0):
+      flag=tkMessageBox.askokcancel("Confirm Reset", "This action will erase all the cells from current board. Are you sure to continue?")
+    else:
+      flag=True
+    if(flag):
+      self.pause()
+      self.mode="edit"
+      self.Num=0
+      self.Pop=-1
+      self.Max=0
+      self.stepnum.set("")
+      self.steppop.set("")
+      if(full):
+	if(self.WIDTH==self.start_dim[0] and self.DEPTH==self.start_dim[1]):
+	  for i in range(0, self.WIDTH):
+	    for j in range (0, self.DEPTH):
+	      self.cells[i][j].clear()
+	else:
+	  self.recreate(self.start_dim[0], self.start_dim[1])
+    self.revertbtn["state"]="disabled"
+    
+  def revert(self):
+    self.reset(False)
     for i in range(0, self.WIDTH):
       for j in range (0, self.DEPTH):
-	self.cells[i][j].commit()
-    if(self.auto.get()):
-      self.timer=self.after(1000, self.step)
-	
-  def run(self):
-    if(self.auto.get()):
-      self.stepbtn["state"]="disabled"
-      self.timer=self.after(1000, self.step)
-    else:
-      self.stepbtn["state"]="normal"
-      self.after_cancel(self.timer)
-	
+	self.cells[i][j].revert()
+    
+  def about(self):
+    tkMessageBox.showinfo("About Life", "Life 1.03 by Agnibho Mondal\nBased on Conway's Game of Life\nhttp://code.agnibho.com/life")
+    
   def count(self, i, j):
     z=0
     for cl in [self.getCell(i-1, j-1), self.getCell(i-1, j), self.getCell(i, j-1), self.getCell(i+1, j+1), self.getCell(i+1, j), self.getCell(i, j+1), self.getCell(i-1, j+1), self.getCell(i+1, j-1)]:
