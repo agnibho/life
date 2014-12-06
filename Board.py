@@ -5,6 +5,7 @@ import tkMessageBox
 import Cell
   
 class Board(tk.Frame):
+  TIME=1000
   cells=[]
   SIZE=10
   WIDTH=50
@@ -40,6 +41,9 @@ class Board(tk.Frame):
     self.openbtn=tk.Button(self.toolbar, text="Open", command=self.openfile)
     self.savebtn=tk.Button(self.toolbar, text="Save", command=self.savefile)
     self.aboutbtn=tk.Button(self.toolbar, text="About", command=self.about)
+    self.slider=tk.Scale(self.toolbar, orient="horizontal", command=self.speed, from_=0, to=900, resolution=100, showvalue=0, length=150)
+    self.spdlbl1=tk.Label(self.toolbar, text="Slow")
+    self.spdlbl2=tk.Label(self.toolbar, text="Fast")
     self.statusbar.grid(row=0)
     self.steplbl.grid(row=0, column=0)
     self.poplbl.grid(row=0, column=1)
@@ -53,6 +57,9 @@ class Board(tk.Frame):
     self.savebtn.grid(row=1, column=1)
     self.revertbtn.grid(row=1, column=2)
     self.aboutbtn.grid(row=1, column=3)
+    self.spdlbl1.grid(row=2, column=0)
+    self.slider.grid(row=2, column=1, columnspan=2)
+    self.spdlbl2.grid(row=2, column=3)
     
     for i in range(0, self.WIDTH):
       self.cells.append([])
@@ -64,9 +71,9 @@ class Board(tk.Frame):
     self.cells=[]
     self.WIDTH=width
     self.DEPTH=depth
-    if(self.SIZE*self.WIDTH>self.winfo_screenwidth()-100 or self.SIZE*self.DEPTH>self.winfo_screenheight()-150):
+    if(self.SIZE*self.WIDTH>self.winfo_screenwidth() or self.SIZE*self.DEPTH>self.winfo_screenheight()-150):
       self.SIZE=5
-      self.WIDTH=(self.winfo_screenwidth()-100)/self.SIZE
+      self.WIDTH=self.winfo_screenwidth()/self.SIZE
       self.DEPTH=(self.winfo_screenheight()-150)/self.SIZE
     else:
       self.SIZE=10
@@ -123,7 +130,7 @@ class Board(tk.Frame):
       self.stepnum.set(str("Gen:"+str(self.Num)))
       self.steppop.set("Pop:"+str(self.Pop))
     if(self.mode=="auto"):
-      self.timer=self.after(1000, self.step)
+      self.timer=self.after(self.TIME, self.step)
 	
   def auto(self):
     self.startbtn["state"]="disabled"
@@ -132,7 +139,7 @@ class Board(tk.Frame):
     if(self.mode=="edit"):
       self.run()
     self.mode="auto"
-    self.timer=self.after(1000, self.step)
+    self.timer=self.after(self.TIME, self.step)
       
   def pause(self):
     self.startbtn["state"]="normal"
@@ -257,7 +264,7 @@ class Board(tk.Frame):
 	self.cells[i][j].revert()
     
   def about(self):
-    tkMessageBox.showinfo("About Life", "Life 1.03 by Agnibho Mondal\nBased on Conway's Game of Life\nhttp://code.agnibho.com/life")
+    tkMessageBox.showinfo("About Life", "Life 1.04 by Agnibho Mondal\nBased on Conway's Game of Life\nhttp://code.agnibho.com/life")
     
   def count(self, i, j):
     z=0
@@ -276,3 +283,6 @@ class Board(tk.Frame):
     elif(y>=self.DEPTH):
       y=0
     return self.cells[x][y]
+  
+  def speed(self, val):
+    self.TIME=1000-int(val)

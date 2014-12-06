@@ -1,5 +1,5 @@
 =============
-Agnibho's Game of Life 1.3.0
+Agnibho's Game of Life 1.4.0
 =============
 
 General Usage Notes
@@ -16,6 +16,7 @@ General Usage Notes
 -Save the current pattern to your computer by clicking <Save> and choosing the target file to save.
 -Click <Revert> to go back to the initial pattern from which the current patterns have been generated.
 -Click <About> to get a short description of the program.
+-Use the slider bar at the bottom to adjust the speed of automatic emulation.
 -The program supports Life 1.06 file format only. To use other file formats you need to convert them to Life 1.06 first.
 
 Program Notes
