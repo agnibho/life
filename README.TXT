@@ -1,5 +1,5 @@
 =============
-Agnibho's Game of Life 1.1.0
+Agnibho's Game of Life 1.3.0
 =============
 
 General Usage Notes
