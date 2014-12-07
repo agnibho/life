@@ -6,7 +6,7 @@ General Usage Notes
 -------------------
 -Start the program by running the __main__.py file. Eg: python __main__.py
 -You can specify dimensions by providing width and height as arguments. Eg: python __main__.py 20 20
--To directly open a file from the command line supply the filename as argument. Example: python __main__.zip <filename>. The file must be in Life 1.06 format.
+-To directly open a file from the command line supply the filename as argument. Example: python __main__.py <filename>. The file must be in Life 1.06 format.
 -Seed the board by clicking on cells
 -Click <Start> to begin automatic emulation
 -Click <Pause> to stop automatic emulation
