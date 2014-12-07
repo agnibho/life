@@ -201,24 +201,29 @@ class Board(tk.Frame):
 	width=self.WIDTH
       self.recreate(width, depth)
     
-    if(min(arr[0])<=0):
+    try:
+      if(min(arr[0])<=0):
+	for i in range(0, len(arr[0])):
+	  arr[0][i]+=self.WIDTH/2
+      if(min(arr[1])<=0):
+	for i in range(0, len(arr[1])):
+	  arr[1][i]+=self.DEPTH/2
       for i in range(0, len(arr[0])):
-	arr[0][i]+=self.WIDTH/2
-    if(min(arr[1])<=0):
-      for i in range(0, len(arr[1])):
-	arr[1][i]+=self.DEPTH/2
-    for i in range(0, len(arr[0])):
-      while(arr[0][i]<0):
-	arr[0][i]+=self.WIDTH
-      while(arr[0][i]>self.WIDTH):
-	arr[0][i]-=self.WIDTH
-    for i in range(0, len(arr[0])):
-      while(arr[1][i]<0):
-	arr[1][i]+=self.DEPTH
-      while(arr[1][i]>self.DEPTH):
-	arr[1][i]-=self.DEPTH
-    for i in range(0, len(arr[0])):
-      self.cells[arr[0][i]][arr[1][i]].toggle()
+	while(arr[0][i]<0):
+	  arr[0][i]+=self.WIDTH
+	while(arr[0][i]>self.WIDTH):
+	  arr[0][i]-=self.WIDTH
+      for i in range(0, len(arr[0])):
+	while(arr[1][i]<0):
+	  arr[1][i]+=self.DEPTH
+	while(arr[1][i]>self.DEPTH):
+	  arr[1][i]-=self.DEPTH
+      for i in range(0, len(arr[0])):
+	self.cells[arr[0][i]][arr[1][i]].toggle()
+    except Exception, e:
+      tkMessageBox.showerror("Error", "Something went wrong. Failed to open the file properly.")
+      print e
+      self.reset(True, True)
       
   def writefile(self, filename):
     if(len(filename)>0):
@@ -230,13 +235,15 @@ class Board(tk.Frame):
 	    f.write(str(i)+" "+str(j)+"\r\n")
       f.close()
     
-  def reset(self, full=True):
+  def reset(self, full=True, force=False):
     self.Pop=0
     for i in range(0, self.WIDTH):
       for j in range (0, self.DEPTH):
 	if(self.cells[i][j].getState()=="live"):
 	  self.Pop+=1
-    if(self.Pop>0):
+    if(force):
+      flag=True
+    elif(self.Pop>0):
       flag=tkMessageBox.askokcancel("Confirm Reset", "This action will erase all the cells from current board. Are you sure to continue?")
     else:
       flag=True
